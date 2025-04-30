@@ -1,88 +1,103 @@
-import sys
+import streamlit as st
 import subprocess
-from PyQt5.QtWidgets import (
-    QApplication, QWidget, QPushButton, QLabel, QVBoxLayout
-)
-from PyQt5.QtGui import QFont, QPalette, QLinearGradient, QColor, QBrush
-from PyQt5.QtCore import Qt
+import sys
+import os
 
-class GameLauncher(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("ProLabs Launcher")
-        self.showFullScreen()
-        self.setup_ui()
+st.set_page_config(page_title="ProLabs Launcher", layout="centered")
 
-    def setup_ui(self):
-        # Gradient background
-        palette = QPalette()
-        gradient = QLinearGradient(0, 0, 0, self.height())
-        gradient.setColorAt(0.0, QColor("#0f2027"))
-        gradient.setColorAt(0.5, QColor("#203a43"))
-        gradient.setColorAt(1.0, QColor("#2c5364"))
-        palette.setBrush(QPalette.Window, QBrush(gradient))
-        self.setPalette(palette)
+# === Custom CSS Styling ===
+st.markdown("""
+    <style>
+        body {
+            background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364);
+            color: white;
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+        }
 
-        # Main vertical layout
-        layout = QVBoxLayout()
-        layout.setSpacing(40)
-        layout.setAlignment(Qt.AlignCenter)
+        .title {
+            font-size: 60px;
+            font-weight: bold;
+            background: -webkit-linear-gradient(left, #00f0ff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-top: 40px;
+            margin-bottom: 60px;
+            text-align: center;
+        }
 
-        # Game title
-        title = QLabel("🔥 ProLabs 🔥")
-        title.setFont(QFont("Verdana", 48, QFont.Bold))
-        title.setStyleSheet("""
-            color: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                                   stop:0 #00f0ff, stop:1 #ff00ff);
-        """)
-        title.setAlignment(Qt.AlignCenter)
-        layout.addWidget(title)
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
 
-        # Play Button
-        play_button = QPushButton("▶  Play")
-        play_button.setFixedSize(220, 70)
-        play_button.setFont(QFont("Segoe UI", 18))
-        play_button.setStyleSheet("""
-            QPushButton {
-                background-color: #00c9a7;
-                color: white;
-                border-radius: 30px;
-                border: 2px solid #00fff0;
-            }
-            QPushButton:hover {
-                background-color: #00e6bf;
-                color: #000;
-            }
-        """)
-        play_button.clicked.connect(self.launch_game)
-        layout.addWidget(play_button, alignment=Qt.AlignCenter)
+        .stButton > button {
+            font-size: 18px;
+            font-weight: bold;
+            width: 200px; /* Button width */
+            height: 60px; /* Button height */
+            border-radius: 30px; /* Rounded corners */
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+        }
 
-        # Exit Button
-        exit_button = QPushButton("✖  Exit")
-        exit_button.setFixedSize(200, 70)
-        exit_button.setFont(QFont("Segoe UI", 16))
-        exit_button.setStyleSheet("""
-            QPushButton {
-                background-color: #e74c3c;
-                color: white;
-                border-radius: 25px;
-                border: 2px solid #ff9999;
-            }
-            QPushButton:hover {
-                background-color: #ff6f61;
-                color: #000;
-            }
-        """)
-        exit_button.clicked.connect(self.close)
-        layout.addWidget(exit_button, alignment=Qt.AlignCenter)
+        /* Play Button Styling */
+        .stButton.play-btn > button {
+            background-color: #00c9a7;  /* Teal color */
+            color: white;
+        }
 
-        self.setLayout(layout)
+        .stButton.play-btn > button:hover {
+            background-color: #00e6bf;  /* Lighter teal on hover */
+            color: black;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #00fff0;
+        }
 
-    def launch_game(self):
-        subprocess.Popen([sys.executable, "/home/dakshchoudhary/Desktop/projects/aim_trainer/main.py"])
+        /* Exit Button Styling */
+        .stButton.exit-btn > button {
+            background-color: #e74c3c;  /* Red color */
+            color: white;
+        }
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    launcher = GameLauncher()
-    launcher.show()
-    sys.exit(app.exec_())
+        .stButton.exit-btn > button:hover {
+            background-color: #ff6f61;  /* Lighter red on hover */
+            color: black;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #ff9999;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# === Title ===
+st.markdown('<div class="title">🔥 ProLabs 🔥</div>', unsafe_allow_html=True)
+
+# === Centered Button Stack ===
+st.markdown('<div class="button-container">', unsafe_allow_html=True)
+
+# Play Button
+with st.form("play_form"):
+    st.markdown('<div class="stButton play-btn">', unsafe_allow_html=True)
+    play = st.form_submit_button("▶ Play")
+    st.markdown('</div>', unsafe_allow_html=True)
+    if play:
+        try:
+            subprocess.Popen([sys.executable, os.path.abspath("main.py")])
+            st.success("Game launched successfully!")
+        except Exception as e:
+            st.error(f"Failed to launch game: {e}")
+
+# Exit Button
+with st.form("exit_form"):
+    st.markdown('<div class="stButton exit-btn">', unsafe_allow_html=True)
+    exit_game = st.form_submit_button("✖ Exit")
+    st.markdown('</div>', unsafe_allow_html=True)
+    if exit_game:
+        st.warning("Exit clicked. Please close the tab or stop the app.")
+
+st.markdown('</div>', unsafe_allow_html=True)
