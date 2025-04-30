@@ -18,14 +18,15 @@ TARGET_EVENT = pygame.USEREVENT
 TARGET_PADDING = 30
 
 BG_COLOR = (0, 10, 40)
-LIVES = 3
+LIVES = 100
 TOP_BAR_HEIGHT = 50
 LABEL_FONT = pygame.font.SysFont("comicsans", 45)
 
 
 class Target:
     MAX_SIZE = 50
-    GROWTH_RATE = 0.5
+    GROWTH_RATE = 0.3
+
     #GROWTH_RATE = 0.5
     COLOR = "red"
     SECOND_coLOOR = "white"
